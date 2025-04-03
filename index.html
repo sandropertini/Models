@@ -139,7 +139,7 @@
 
                 // Estrai i componenti per la distinta base
                 model.traverse((child) => {
-                    if (child.isMesh) {
+                    if (child.isChildren) {
                         modelParts.push(child);
                         const button = document.createElement('button');
                         // Usa il nome originale se disponibile, altrimenti un fallback
