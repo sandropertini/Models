@@ -76,7 +76,7 @@
         let mixer;
         let actions = [];
         let modelParts = [];
-        let model; // Riferimento al modello
+        let model;
         const animationControls = document.getElementById('animationControls');
         const bomControls = document.getElementById('bomControls');
 
@@ -96,7 +96,7 @@
 
         let originalMaterials = new Map();
         function highlightPart(part) {
-            if (!model) return; // Assicurati che il modello sia caricato
+            if (!model) return;
             model.traverse((child) => {
                 if (child.isMesh && originalMaterials.has(child)) {
                     child.material = originalMaterials.get(child);
@@ -109,8 +109,6 @@
                     originalMaterials.set(part, part.material.clone());
                 }
                 part.material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-                // Opzionale: isola la parte
-                // modelParts.forEach(p => { if (p !== part) p.visible = false; });
             }
         }
 
@@ -141,12 +139,15 @@
 
                 // Estrai i componenti per la distinta base
                 model.traverse((child) => {
-                    if (child.isMesh) { // Solo mesh per semplicità
+                    if (child.isMesh) {
                         modelParts.push(child);
                         const button = document.createElement('button');
-                        button.textContent = child.name || `Parte ${modelParts.length}`;
+                        // Usa il nome originale se disponibile, altrimenti un fallback
+                        const partName = child.name && child.name !== '' ? child.name : `Parte ${modelParts.length}`;
+                        button.textContent = partName;
                         button.addEventListener('click', () => highlightPart(child));
                         bomControls.appendChild(button);
+                        console.log(`Nome parte: ${child.name}`); // Debug per verificare i nomi
                     }
                 });
 
