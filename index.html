@@ -50,4 +50,68 @@
                 scene.add(model);
 
                 // Inizializza il mixer per le animazioni
-                mixer = new THREE.Animation
+                mixer = new THREE.AnimationMixer(model);
+
+                // Carica tutte le animazioni disponibili
+                gltf.animations.forEach((clip, index) => {
+                    const action = mixer.clipAction(clip);
+                    actions.push(action);
+                    console.log(`Animazione ${index}: ${clip.name}`); // Stampa i nomi delle animazioni
+                });
+
+                // Riproduci la prima animazione (se esiste)
+                if (actions.length > 0) {
+                    actions[0].play();
+                } else {
+                    console.log("Nessuna animazione trovata nel modello.");
+                }
+            },
+            function (xhr) {
+                console.log((xhr.loaded / xhr.total * 100) + '% caricato');
+            },
+            function (error) {
+                console.error('Errore durante il caricamento:', error);
+            }
+        );
+
+        // Clock per aggiornare le animazioni
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta(); // Tempo trascorso dall'ultimo frame
+            if (mixer) mixer.update(delta); // Aggiorna le animazioni
+            controls.update(); // Aggiorna i controlli
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Funzioni di controllo delle animazioni (esempi)
+        function playAnimation(index) {
+            if (actions[index]) {
+                actions.forEach(action => action.stop()); // Ferma tutte le animazioni
+                actions[index].play(); // Riproduci l'animazione scelta
+            }
+        }
+
+        function stopAllAnimations() {
+            if (mixer) mixer.stopAllAction();
+        }
+
+        // Esempio: aggiungi controlli manuali (opzionale)
+        document.addEventListener('keydown', (event) => {
+            switch (event.key) {
+                case '1': playAnimation(0); break; // Premi 1 per la prima animazione
+                case '2': playAnimation(1); break; // Premi 2 per la seconda
+                case 's': stopAllAnimations(); break; // Premi 's' per fermare tutto
+            }
+        });
+    </script>
+</body>
+</html>
