@@ -138,16 +138,16 @@
                 }
 
                 // Estrai i componenti per la distinta base
-                model.traverse((child) => {
-                    if (child.isMesh) {
+                model.traverse((child,pippo) => {
+                    if (child.isMesh) && (pippo.isChildren)  {
                         modelParts.push(child);
                         const button = document.createElement('button');
                         // Usa il nome originale se disponibile, altrimenti un fallback
-                        const partName = child.name && child.name !== '' ? child.name : `Parte ${modelParts.length}`;
+                        const partName = pippo.name && pippo.name !== '' ? pippo.name : `Parte ${modelParts.length}`;
                         button.textContent = partName;
                         button.addEventListener('click', () => highlightPart(child));
                         bomControls.appendChild(button);
-                        console.log(`Nome parte: ${child.name}`); // Debug per verificare i nomi
+                        console.log(`Nome parte: ${pippo.name}`); // Debug per verificare i nomi
                     }
                 });
 
