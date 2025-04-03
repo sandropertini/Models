@@ -61,8 +61,8 @@
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableZoom = true;
         controls.zoomSpeed = 1.0;
-        controls.minDistance = 100;
-        controls.maxDistance = 5000;
+        controls.minDistance = 1;
+        controls.maxDistance = 10;
 
         // Aggiungi luci
         const light = new THREE.HemisphereLight(0xffffff, 0x444444);
@@ -139,7 +139,7 @@
 
                 // Estrai i componenti per la distinta base
                 model.traverse((child) => {
-                    if (child.isChildren) {
+                    if (child.isMesh) {
                         modelParts.push(child);
                         const button = document.createElement('button');
                         // Usa il nome originale se disponibile, altrimenti un fallback
