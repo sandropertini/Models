@@ -32,7 +32,7 @@
     <div id="controlsContainer">
         <div id="animationControls">
             <h3>Animazioni</h3>
-            <button onclick="stopAllAnimations()">Ferma</button>
+            <button id="stopButton">Ferma</button>
             <!-- Pulsanti animazioni aggiunti dinamicamente -->
         </div>
         <div id="bomControls">
@@ -46,62 +46,4 @@
     <script>
         // Inizializza la scena
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xdddddd);
-
-        // Inizializza la telecamera
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 5;
-
-        // Inizializza il renderer
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-
-        // Aggiungi i controlli orbitali
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableZoom = true;
-        controls.zoomSpeed = 1.0;
-        controls.minDistance = 1;
-        controls.maxDistance = 100;
-
-        // Aggiungi luci
-        const light = new THREE.HemisphereLight(0xffffff, 0x444444);
-        light.position.set(0, 20, 0);
-        scene.add(light);
-        const directionalLight = new THREE.DirectionalLight(0xffffff);
-        directionalLight.position.set(0, 20, 10);
-        scene.add(directionalLight);
-
-        // Variabili per animazioni e distinta base
-        let mixer;
-        let actions = [];
-        let modelParts = []; // Array per i componenti del modello
-        const animationControls = document.getElementById('animationControls');
-        const bomControls = document.getElementById('bomControls');
-
-        // Carica il modello GLB
-        const loader = new THREE.GLTFLoader();
-        loader.load(
-            'https://raw.githubusercontent.com/sandropertini/Models/main/tagl_an.glb',
-            function (gltf) {
-                const model = gltf.scene;
-                scene.add(model);
-
-                // Inizializza il mixer per le animazioni
-                mixer = new THREE.AnimationMixer(model);
-
-                // Aggiungi pulsanti per le animazioni
-                gltf.animations.forEach((clip, index) => {
-                    const action = mixer.clipAction(clip);
-                    actions.push(action);
-                    const button = document.createElement('button');
-                    button.textContent = clip.name || `Animazione ${index}`;
-                    button.onclick = () => playAnimation(index);
-                    animationControls.appendChild(button);
-                });
-
-                if (gltf.animations.length === 0) {
-                    console.log("Nessuna animazione trovata nel modello.");
-                }
-
-                // Estrai i
+        scene
