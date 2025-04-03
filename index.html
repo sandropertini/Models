@@ -15,15 +15,17 @@
             padding: 5px; 
             border-radius: 3px; 
         }
+        #animationControls button { 
+            margin: 2px; 
+            padding: 5px 10px; 
+            cursor: pointer; 
+        }
     </style>
 </head>
 <body>
     <div id="animationControls">
-        <label for="animationSelect">Seleziona Animazione:</label>
-        <select id="animationSelect">
-            <option value="-1">Ferma</option>
-            <!-- Le opzioni verranno aggiunte dinamicamente -->
-        </select>
+        <button onclick="stopAllAnimations()">Ferma</button>
+        <!-- I pulsanti per le animazioni verranno aggiunti dinamicamente -->
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.134/examples/js/loaders/GLTFLoader.js"></script>
@@ -60,7 +62,7 @@
         // Variabili per le animazioni
         let mixer;
         let actions = [];
-        const animationSelect = document.getElementById('animationSelect');
+        const controlsDiv = document.getElementById('animationControls');
 
         // Carica il modello GLB
         const loader = new THREE.GLTFLoader();
@@ -73,14 +75,14 @@
                 // Inizializza il mixer per le animazioni
                 mixer = new THREE.AnimationMixer(model);
 
-                // Popola il menu con le animazioni disponibili
+                // Aggiungi pulsanti per ogni animazione
                 gltf.animations.forEach((clip, index) => {
                     const action = mixer.clipAction(clip);
                     actions.push(action);
-                    const option = document.createElement('option');
-                    option.value = index;
-                    option.text = clip.name || `Animazione ${index}`;
-                    animationSelect.appendChild(option);
+                    const button = document.createElement('button');
+                    button.textContent = clip.name || `Animazione ${index}`;
+                    button.onclick = () => playAnimation(index);
+                    controlsDiv.appendChild(button);
                 });
 
                 // Messaggio se non ci sono animazioni
@@ -96,16 +98,20 @@
             }
         );
 
-        // Gestione della selezione dell'animazione
-        animationSelect.addEventListener('change', (event) => {
-            const selectedIndex = parseInt(event.target.value);
-            if (mixer) {
+        // Funzione per riprodurre un'animazione
+        function playAnimation(index) {
+            if (mixer && actions[index]) {
                 actions.forEach(action => action.stop()); // Ferma tutte le animazioni
-                if (selectedIndex >= 0 && selectedIndex < actions.length) {
-                    actions[selectedIndex].play(); // Riproduci l'animazione selezionata
-                }
+                actions[index].play(); // Riproduci l'animazione selezionata
             }
-        });
+        }
+
+        // Funzione per fermare tutte le animazioni
+        function stopAllAnimations() {
+            if (mixer) {
+                actions.forEach(action => action.stop());
+            }
+        }
 
         // Clock per aggiornare le animazioni
         const clock = new THREE.Clock();
