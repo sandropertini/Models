@@ -2,30 +2,43 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Visualizza file GLB con Animazioni</title>
+    <title>Visualizza file GLB con Animazioni e Distinta Base</title>
     <style>
         body { margin: 0; overflow: hidden; }
         canvas { width: 100%; height: 100vh; }
-        #animationControls { 
+        #controlsContainer { 
             position: absolute; 
             top: 10px; 
             left: 10px; 
             z-index: 100; 
             background: rgba(255, 255, 255, 0.8); 
-            padding: 5px; 
+            padding: 10px; 
             border-radius: 3px; 
+            max-height: 80vh; 
+            overflow-y: auto; 
         }
-        #animationControls button { 
+        #animationControls, #bomControls { margin-bottom: 10px; }
+        #animationControls button, #bomControls button { 
             margin: 2px; 
             padding: 5px 10px; 
             cursor: pointer; 
+            width: 100%; 
+            text-align: left; 
         }
+        #bomControls button:hover { background: #f0f0f0; }
     </style>
 </head>
 <body>
-    <div id="animationControls">
-        <button onclick="stopAllAnimations()">Ferma</button>
-        <!-- I pulsanti per le animazioni verranno aggiunti dinamicamente -->
+    <div id="controlsContainer">
+        <div id="animationControls">
+            <h3>Animazioni</h3>
+            <button onclick="stopAllAnimations()">Ferma</button>
+            <!-- Pulsanti animazioni aggiunti dinamicamente -->
+        </div>
+        <div id="bomControls">
+            <h3>Distinta Base</h3>
+            <!-- Pulsanti distinta base aggiunti dinamicamente -->
+        </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.134/examples/js/loaders/GLTFLoader.js"></script>
@@ -44,7 +57,7 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        // Aggiungi i controlli orbitali per zoom e rotazione
+        // Aggiungi i controlli orbitali
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableZoom = true;
         controls.zoomSpeed = 1.0;
@@ -59,10 +72,12 @@
         directionalLight.position.set(0, 20, 10);
         scene.add(directionalLight);
 
-        // Variabili per le animazioni
+        // Variabili per animazioni e distinta base
         let mixer;
         let actions = [];
-        const controlsDiv = document.getElementById('animationControls');
+        let modelParts = []; // Array per i componenti del modello
+        const animationControls = document.getElementById('animationControls');
+        const bomControls = document.getElementById('bomControls');
 
         // Carica il modello GLB
         const loader = new THREE.GLTFLoader();
@@ -75,63 +90,18 @@
                 // Inizializza il mixer per le animazioni
                 mixer = new THREE.AnimationMixer(model);
 
-                // Aggiungi pulsanti per ogni animazione
+                // Aggiungi pulsanti per le animazioni
                 gltf.animations.forEach((clip, index) => {
                     const action = mixer.clipAction(clip);
                     actions.push(action);
                     const button = document.createElement('button');
                     button.textContent = clip.name || `Animazione ${index}`;
                     button.onclick = () => playAnimation(index);
-                    controlsDiv.appendChild(button);
+                    animationControls.appendChild(button);
                 });
 
-                // Messaggio se non ci sono animazioni
                 if (gltf.animations.length === 0) {
                     console.log("Nessuna animazione trovata nel modello.");
                 }
-            },
-            function (xhr) {
-                console.log((xhr.loaded / xhr.total * 100) + '% caricato');
-            },
-            function (error) {
-                console.error('Errore durante il caricamento:', error);
-            }
-        );
 
-        // Funzione per riprodurre un'animazione
-        function playAnimation(index) {
-            if (mixer && actions[index]) {
-                actions.forEach(action => action.stop()); // Ferma tutte le animazioni
-                actions[index].play(); // Riproduci l'animazione selezionata
-            }
-        }
-
-        // Funzione per fermare tutte le animazioni
-        function stopAllAnimations() {
-            if (mixer) {
-                actions.forEach(action => action.stop());
-            }
-        }
-
-        // Clock per aggiornare le animazioni
-        const clock = new THREE.Clock();
-
-        // Funzione di animazione
-        function animate() {
-            requestAnimationFrame(animate);
-            const delta = clock.getDelta();
-            if (mixer) mixer.update(delta); // Aggiorna le animazioni
-            controls.update(); // Aggiorna i controlli orbitali
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        // Adatta al ridimensionamento della finestra
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-    </script>
-</body>
-</html>
+                // Estrai i
