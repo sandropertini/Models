@@ -6,7 +6,15 @@
     <style>
         body { margin: 0; overflow: hidden; }
         canvas { width: 100%; height: 100vh; }
-        #animationControls { position: absolute; top: 10px; left: 10px; z-index: 100; }
+        #animationControls { 
+            position: absolute; 
+            top: 10px; 
+            left: 10px; 
+            z-index: 100; 
+            background: rgba(255, 255, 255, 0.8); 
+            padding: 5px; 
+            border-radius: 3px; 
+        }
     </style>
 </head>
 <body>
@@ -21,24 +29,27 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.134/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.134/examples/js/controls/OrbitControls.js"></script>
     <script>
+        // Inizializza la scena
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0xdddddd);
 
+        // Inizializza la telecamera
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.z = 5;
 
+        // Inizializza il renderer
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        // Controlli orbitali
+        // Aggiungi i controlli orbitali per zoom e rotazione
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableZoom = true;
         controls.zoomSpeed = 1.0;
         controls.minDistance = 1;
         controls.maxDistance = 100;
 
-        // Luci
+        // Aggiungi luci
         const light = new THREE.HemisphereLight(0xffffff, 0x444444);
         light.position.set(0, 20, 0);
         scene.add(light);
@@ -51,6 +62,7 @@
         let actions = [];
         const animationSelect = document.getElementById('animationSelect');
 
+        // Carica il modello GLB
         const loader = new THREE.GLTFLoader();
         loader.load(
             'https://raw.githubusercontent.com/sandropertini/Models/main/tagl_an.glb',
@@ -58,24 +70,62 @@
                 const model = gltf.scene;
                 scene.add(model);
 
-                // Inizializza il mixer
+                // Inizializza il mixer per le animazioni
                 mixer = new THREE.AnimationMixer(model);
 
-                // Popola il menu con le animazioni
+                // Popola il menu con le animazioni disponibili
                 gltf.animations.forEach((clip, index) => {
                     const action = mixer.clipAction(clip);
                     actions.push(action);
                     const option = document.createElement('option');
                     option.value = index;
-                    option.text = clip.name || `Animazione ${index}`; // Usa il nome dell'animazione o un indice
+                    option.text = clip.name || `Animazione ${index}`;
                     animationSelect.appendChild(option);
                 });
 
-                // Nessuna animazione di default
-                if (actions.length === 0) {
+                // Messaggio se non ci sono animazioni
+                if (gltf.animations.length === 0) {
                     console.log("Nessuna animazione trovata nel modello.");
                 }
             },
             function (xhr) {
                 console.log((xhr.loaded / xhr.total * 100) + '% caricato');
             },
+            function (error) {
+                console.error('Errore durante il caricamento:', error);
+            }
+        );
+
+        // Gestione della selezione dell'animazione
+        animationSelect.addEventListener('change', (event) => {
+            const selectedIndex = parseInt(event.target.value);
+            if (mixer) {
+                actions.forEach(action => action.stop()); // Ferma tutte le animazioni
+                if (selectedIndex >= 0 && selectedIndex < actions.length) {
+                    actions[selectedIndex].play(); // Riproduci l'animazione selezionata
+                }
+            }
+        });
+
+        // Clock per aggiornare le animazioni
+        const clock = new THREE.Clock();
+
+        // Funzione di animazione
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+            if (mixer) mixer.update(delta); // Aggiorna le animazioni
+            controls.update(); // Aggiorna i controlli orbitali
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Adatta al ridimensionamento della finestra
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
