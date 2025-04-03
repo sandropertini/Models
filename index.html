@@ -11,6 +11,7 @@
 <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.134/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134/examples/js/controls/OrbitControls.js"></script>
     <script>
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0xdddddd);
@@ -22,6 +23,13 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
+        // Aggiungi i controlli orbitali
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableZoom = true; // Abilita lo zoom (di default è già true)
+        controls.zoomSpeed = 1.0; // Velocità dello zoom (opzionale)
+        controls.minDistance = 1; // Distanza minima per lo zoom
+        controls.maxDistance = 100; // Distanza massima per lo zoom
+
         const light = new THREE.HemisphereLight(0xffffff, 0x444444);
         light.position.set(0, 20, 0);
         scene.add(light);
@@ -31,7 +39,7 @@
 
         const loader = new THREE.GLTFLoader();
         loader.load(
-            'https://raw.githubusercontent.com/sandropertini/Models/main/tagl_an.glb', // Inserisci il tuo URL qui
+            'https://raw.githubusercontent.com/sandropertini/Models/main/tagl_an.glb',
             function (gltf) {
                 scene.add(gltf.scene);
             },
@@ -45,6 +53,7 @@
 
         function animate() {
             requestAnimationFrame(animate);
+            controls.update(); // Aggiorna i controlli a ogni frame
             renderer.render(scene, camera);
         }
         animate();
