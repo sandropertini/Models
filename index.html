@@ -61,8 +61,8 @@
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableZoom = true;
         controls.zoomSpeed = 1.0;
-        controls.minDistance = 1;
-        controls.maxDistance = 100;
+        controls.minDistance = 100;
+        controls.maxDistance = 5000;
 
         // Aggiungi luci
         const light = new THREE.HemisphereLight(0xffffff, 0x444444);
