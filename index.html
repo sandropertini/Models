@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Visualizza file GLB</title>
+    <title>Visualizza file GLB con Animazioni</title>
     <style>
         body { margin: 0; overflow: hidden; }
         canvas { width: 100%; height: 100vh; }
@@ -23,13 +23,14 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        // Aggiungi i controlli orbitali
+        // Controlli orbitali
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableZoom = true; // Abilita lo zoom (di default è già true)
-        controls.zoomSpeed = 1.0; // Velocità dello zoom (opzionale)
-        controls.minDistance = 1; // Distanza minima per lo zoom
-        controls.maxDistance = 100; // Distanza massima per lo zoom
+        controls.enableZoom = true;
+        controls.zoomSpeed = 1.0;
+        controls.minDistance = 1;
+        controls.maxDistance = 100;
 
+        // Luci
         const light = new THREE.HemisphereLight(0xffffff, 0x444444);
         light.position.set(0, 20, 0);
         scene.add(light);
@@ -37,32 +38,16 @@
         directionalLight.position.set(0, 20, 10);
         scene.add(directionalLight);
 
+        // Variabili per le animazioni
+        let mixer; // AnimationMixer per gestire le animazioni
+        let actions = []; // Array per salvare le animazioni disponibili
+
         const loader = new THREE.GLTFLoader();
         loader.load(
             'https://raw.githubusercontent.com/sandropertini/Models/main/tagl_an.glb',
             function (gltf) {
-                scene.add(gltf.scene);
-            },
-            function (xhr) {
-                console.log((xhr.loaded / xhr.total * 100) + '% caricato');
-            },
-            function (error) {
-                console.error('Errore durante il caricamento:', error);
-            }
-        );
+                const model = gltf.scene;
+                scene.add(model);
 
-        function animate() {
-            requestAnimationFrame(animate);
-            controls.update(); // Aggiorna i controlli a ogni frame
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-    </script>
-</body>
-</html>
+                // Inizializza il mixer per le animazioni
+                mixer = new THREE.Animation
